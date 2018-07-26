@@ -1,0 +1,17 @@
+c:\users\osman_000\source\repos\wwakalar\bin\Debug\wwakalar.exe.config
+c:\users\osman_000\source\repos\wwakalar\bin\Debug\wwakalar.exe
+c:\users\osman_000\source\repos\wwakalar\bin\Debug\wwakalar.pdb
+c:\users\osman_000\source\repos\wwakalar\bin\Debug\HtmlAgilityPack.dll
+c:\users\osman_000\source\repos\wwakalar\bin\Debug\HtmlAgilityPack.pdb
+c:\users\osman_000\source\repos\wwakalar\bin\Debug\HtmlAgilityPack.xml
+c:\users\osman_000\source\repos\wwakalar\obj\Debug\wwakalar.csprojResolveAssemblyReference.cache
+c:\users\osman_000\source\repos\wwakalar\obj\Debug\wwakalar.Form1.resources
+c:\users\osman_000\source\repos\wwakalar\obj\Debug\wwakalar.Properties.Resources.resources
+c:\users\osman_000\source\repos\wwakalar\obj\Debug\wwakalar.csproj.GenerateResource.Cache
+c:\users\osman_000\source\repos\wwakalar\obj\Debug\wwakalar.csproj.CoreCompileInputs.cache
+c:\users\osman_000\source\repos\wwakalar\obj\Debug\wwakalar.exe
+c:\users\osman_000\source\repos\wwakalar\obj\Debug\wwakalar.pdb
+C:\Users\osman_000\source\repos\wwakalar\bin\Debug\RestSharp.dll
+C:\Users\osman_000\source\repos\wwakalar\bin\Debug\Newtonsoft.Json.dll
+C:\Users\osman_000\source\repos\wwakalar\bin\Debug\Newtonsoft.Json.xml
+C:\Users\osman_000\source\repos\wwakalar\obj\Debug\wwakalar.Form2.resources
