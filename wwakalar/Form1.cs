@@ -142,11 +142,27 @@ namespace wwakalar
             return value;
         }
         /*
-         "created_at": "2018-07-13T07:17:59Z",
-      "entity": "chrome://newtab",
-      "id": "a8867564-09f6-47dc-8144-902c1a4daedc",
-      "time": 1531466283,
-      "type": "domain"
+      data": [
+    {
+      "branch": null,+++++++++++++++++++
+      "category": "browsing",++++++++++++++++++
+      "created_at": "2018-07-23T01:38:45Z",++++++++++
+      "cursorpos": null,----------------------
+      "dependencies": [],--------------------
+      "entity": "https://www.youtube.com",++++++++++++++++++
+      "id": "3cd73229-b63d-4c63-86aa-be56a1baca34", ++++++++++++
+      "is_debugging": false,------------
+      "is_write": false,----------
+      "language": null,-----------
+      "lineno": null,-----------
+      "lines": null,-------
+      "machine_name_id": null,-------------
+      "project": "wwakalar",        ++++++++++++++
+      "time": 1532309955,   ++++++++++
+      "type": "domain",     +++++++++++++++
+      "user_agent_id": "76973644-4f88-4873-bc31-9fd33f4be7a4",  +++++++
+      "user_id": "52cb9b43-fa90-4617-9c55-6e300ffb9c8f"     +++++
+    },
              
              */
         public string parse_json2(string json)
@@ -168,15 +184,15 @@ namespace wwakalar
                 entity[i] = entit.ToString();
 
                 string ids = datas["user_id"].ToString();
-               
-
                 string times = datas["time"].ToString();
-                time[i] = times.ToString();
-
                 string types  = datas["type"].ToString();
-                type[i] = types.ToString();
+                string katagori = datas["category"].ToString();
+                string proje = datas["project"].ToString();
+                string user_agent_id = datas["user_agent_id"].ToString();
+                string branch = datas["branch"].ToString();
 
-                value = "created_at=" + cretad + "\n" + "entity=" + entit + "\n" + "id="+ids+"\n"+"time=" + times + "\n" +"type="+ types + "\n";
+                value = "Branch="+ branch +"\n"+ "created_at=" + cretad + "\n"+"proje="+proje+"\n" + "entity=" + entit + "\n" + "id="+ids+"\n"+ "user_agent_id="+ user_agent_id+"\n"
+                    + "time=" + times + "\n" +"type="+ types + "\n"+"Kategori="+katagori+"\n";
 
 
                 /*****************************************************************************************/
