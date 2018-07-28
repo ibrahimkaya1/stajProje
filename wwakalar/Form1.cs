@@ -55,8 +55,8 @@ namespace wwakalar
         string[] arrray_value = new string[100];
         string api_key = "5fff4da8-ee27-43e6-9511-903fd88be248";
         //string api_key = "084fb563-1f53-44d0-9ff2-48f2c51d202c";
-        string tarih = DateTime.Now.ToString();
 
+     //   string tarih = DateTime.Now.ToString();
         string[] created = new string[100];
         string[] entity = new string[100];
         string[] time = new string[100];
@@ -67,8 +67,14 @@ namespace wwakalar
         string veri_user;
         private void Form1_Load(object sender, EventArgs e)
         {
-             veri_duration = get_data("https://wakatime.com/api/v1/users/current/durations?date=2018-07-24&api_key="+api_key);
-            veri_heartbeats = get_data("https://wakatime.com/api/v1/users/current/heartbeats?date=2018-07-24&api_key=" + api_key);
+            DateTime dt = DateTime.Today;
+            int yil = dt.Year;
+            int ay = dt.Month;
+            int gun = dt.Day;
+            gun = gun - 1;
+
+            veri_duration = get_data("https://wakatime.com/api/v1/users/current/durations?date="+yil+"-"+ay+"-"+gun+"&api_key="+api_key);
+            veri_heartbeats = get_data("https://wakatime.com/api/v1/users/current/heartbeats?date=" + yil + "-" + ay + "-" + gun + "&api_key=" + api_key);
             veri_user = get_data("https://wakatime.com/api/v1/users/current?api_key=" + api_key);
         }
         /*{
@@ -177,22 +183,17 @@ namespace wwakalar
                 int i = 0;
 
                 string cretad = datas["created_at"].ToString();
-                //  Console.WriteLine(duration);
-                created[i] = cretad.ToString();
-
                 string entit = datas["entity"].ToString();
-                entity[i] = entit.ToString();
-
                 string ids = datas["user_id"].ToString();
                 string times = datas["time"].ToString();
                 string types  = datas["type"].ToString();
                 string katagori = datas["category"].ToString();
                 string proje = datas["project"].ToString();
                 string user_agent_id = datas["user_agent_id"].ToString();
-                string branch = datas["branch"].ToString();
-
-                value = "Branch="+ branch +"\n"+ "created_at=" + cretad + "\n"+"proje="+proje+"\n" + "entity=" + entit + "\n" + "id="+ids+"\n"+ "user_agent_id="+ user_agent_id+"\n"
-                    + "time=" + times + "\n" +"type="+ types + "\n"+"Kategori="+katagori+"\n";
+                //  string branch = datas["branch"].ToString();
+                string language = datas["language"].ToString();
+                value = "created_at=" + cretad + "\n"+"proje="+proje+"\n" + "language="+ language+"\n" + "entity=" + entit + "\n" + "id="+ids+"\n"
+                    + "user_agent_id="+ user_agent_id+"\n"+ "time=" + times + "\n" +"type="+ types + "\n"+"Kategori="+katagori+"\n";
 
 
                 /*****************************************************************************************/
@@ -224,9 +225,7 @@ namespace wwakalar
                 durat[i]=duration.ToString();
                
                 string project = datas["project"].ToString();
-                prject[i] = project.ToString();
                 string time = datas["time"].ToString();
-                tm[i] = time.ToString();
                 var end = datas["end"];
                 var start = datas["start"];
                 var timezone = datas["timezone"];
@@ -265,8 +264,6 @@ namespace wwakalar
             parse_json(veri_duration);
             Console.WriteLine("*************************************************************************************");
             parse_json3(veri_user);
-            //  var val = "duration=" + durat[2] + "\n" + "project=" + prject[2] + "\n" + "time=" + tm[2];
-            //   richTextBox1.Text = val.ToString();
         }
     }
 }
