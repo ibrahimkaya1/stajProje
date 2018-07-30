@@ -1,6 +1,4 @@
-﻿
-using System;
-
+﻿using System;
 using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using System.Net;
@@ -72,7 +70,7 @@ namespace wwakalar
             int ay = dt.Month;
             int gun = dt.Day;
             gun = gun - 1;
-
+            /*formdan tarih aralığı alınacak ona göre ay yıl ataması yapılacak. Ama aralık girilmez ise görüntülenecek zaman  bugün veya dün olacak*/
             veri_duration = get_data("https://wakatime.com/api/v1/users/current/durations?date="+yil+"-"+ay+"-"+gun+"&api_key="+api_key);
             veri_heartbeats = get_data("https://wakatime.com/api/v1/users/current/heartbeats?date=" + yil + "-" + ay + "-" + gun + "&api_key=" + api_key);
             veri_user = get_data("https://wakatime.com/api/v1/users/current?api_key=" + api_key);
@@ -264,6 +262,11 @@ namespace wwakalar
             parse_json(veri_duration);
             Console.WriteLine("*************************************************************************************");
             parse_json3(veri_user);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
