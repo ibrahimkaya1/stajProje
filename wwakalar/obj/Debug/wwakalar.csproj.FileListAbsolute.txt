@@ -31,3 +31,4 @@ C:\Users\osman_000\Desktop\Github\stajProje\wwakalar\obj\Debug\wwakalar.csproj.G
 C:\Users\osman_000\Desktop\Github\stajProje\wwakalar\obj\Debug\wwakalar.csproj.CoreCompileInputs.cache
 C:\Users\osman_000\Desktop\Github\stajProje\wwakalar\obj\Debug\wwakalar.exe
 C:\Users\osman_000\Desktop\Github\stajProje\wwakalar\obj\Debug\wwakalar.pdb
+C:\Users\osman_000\Desktop\Github\stajProje\wwakalar\obj\Debug\wwakalar.Form2.resources

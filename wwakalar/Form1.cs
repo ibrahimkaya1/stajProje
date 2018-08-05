@@ -3,6 +3,8 @@ using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using System.Net;
 using System.IO;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace wwakalar
 {
@@ -12,18 +14,18 @@ namespace wwakalar
         //https://wakatime.com/api/v1/users/current/durations?date=2018-07-13&api_key=5fff4da8-ee27-43e6-9511-903fd88be248
         public Form1()
         {
-            
+         
             InitializeComponent();
-
         }
-
-        
+       //public SqlConnection con;
+        SqlConnection con = new SqlConnection("Server=.; Initial Catalog = WakaTime;Integrated Security=True");
         private string get_data(string url)
         {
 
             string urlAddress = url;
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urlAddress);
+        
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
             if (response.StatusCode == HttpStatusCode.OK)
@@ -47,6 +49,9 @@ namespace wwakalar
             else
                 return "Deger yok";
         }
+
+        
+
         string[] durat = new string[100];
         string[] tm = new string[100];
         string[] prject = new string[100];
@@ -63,18 +68,15 @@ namespace wwakalar
         string veri_duration;
         string veri_heartbeats;
         string veri_user;
-        private void Form1_Load(object sender, EventArgs e)
+       
+        public void Form1_Load(object sender, EventArgs e)
         {
-            DateTime dt = DateTime.Today;
-            int yil = dt.Year;
-            int ay = dt.Month;
-            int gun = dt.Day;
-            gun = gun - 1;
+            string tarih=Tarih_Cagir();
             /*formdan tarih aralığı alınacak ona göre ay yıl ataması yapılacak. Ama aralık girilmez ise görüntülenecek zaman  bugün veya dün olacak*/
-            veri_duration = get_data("https://wakatime.com/api/v1/users/current/durations?date="+yil+"-"+ay+"-"+gun+"&api_key="+api_key);
-            veri_heartbeats = get_data("https://wakatime.com/api/v1/users/current/heartbeats?date=" + yil + "-" + ay + "-" + gun + "&api_key=" + api_key);
+            veri_duration = get_data("https://wakatime.com/api/v1/users/current/durations?date="+tarih+"&api_key="+api_key);
+            veri_heartbeats = get_data("https://wakatime.com/api/v1/users/current/heartbeats?date=" + tarih+ "&api_key=" + api_key);
             veri_user = get_data("https://wakatime.com/api/v1/users/current?api_key=" + api_key);
-        }
+        }   
         /*{
   "data": {
     "created_at": "2018-06-25T05:48:32Z",+
@@ -103,15 +105,13 @@ namespace wwakalar
     "website": null
   }
 }*/
-        public string parse_json3(string json)
+        public void parse_json3(string json)
         {
-            string value = string.Empty;
+            //string value = string.Empty;
 
             JObject json_object = JObject.Parse(json);
             var json_result = json_object["data"];
 
-         
-                int i = 0;
 
                 string cretad = json_result["created_at"].ToString();
 
@@ -128,22 +128,37 @@ namespace wwakalar
                 string photo= json_result["photo"].ToString();
 
                 string timezone = json_result["timezone"].ToString();
-                value = "created_at=" + cretad + "\n" + "email=" + mail + "\n" + "id=" + ids + "\n" + "last_heartbeat=" 
+               /* value = "created_at=" + cretad + "\n" + "email=" + mail + "\n" + "id=" + ids + "\n" + "last_heartbeat=" 
                     + last_heartbeat + "\n" + "last_plugin_name=" + last_plugin_name + "\n"+ "last_project="+ last_project+ "\n"+
-                    "photo="+ photo+"\n"+ "timezone="+ timezone+"\n";
+                    "photo="+ photo+"\n"+ "timezone="+ timezone+"\n";*/
 
+            vt_user(cretad,mail,ids,last_heartbeat,last_plugin_name,last_project,photo,timezone);
+             //   Console.WriteLine(value); //burda ki çıktılar veritabanına kaydedilecek
 
-                /*****************************************************************************************/
+           // return value;
+        }
+        public void vt_user(string created_at,string email,string id,string last_heartbeats,string last_plugin,string last_project,string photo,string timezone)
+        {
+            con.Open();
+            string tarih = Tarih_Cagir();
+            string secmeSorgusu = "SELECT * from users where vt_kayit=@tarih";
+            SqlCommand secmeKomutu = new SqlCommand(secmeSorgusu, con);
+            secmeKomutu.Parameters.AddWithValue("@tarih", tarih);
+            if (secmeKomutu != null)
+            {
+                string silSorgusu = "Delete from users where vt_kayit=@tarih and created=@times";
+                SqlCommand kayit_sil = new SqlCommand(silSorgusu, con);
+                kayit_sil.Parameters.AddWithValue("@tarih", tarih);
+                kayit_sil.Parameters.AddWithValue("@times", created_at);
+                kayit_sil.ExecuteNonQuery();
+            }
 
+            SqlCommand kayitekle = new SqlCommand("insert into users(created,email,id,last_heartbeat,last_plugin,last_project,photo,timezone,vt_kayit) values" +
+              " ('" + created_at + "','" + email + "','" + id + "','" + last_heartbeats + "','" +last_plugin + "','" +last_project + "','" +photo + "','" + timezone +"','" +tarih+ "')", con);
+            kayitekle.ExecuteNonQuery();
+            // value = "duration=" + duration + "\n" + "project=" + project + "\n" + "time=" + time + "\n"+timezone+"\n";
 
-
-                Console.WriteLine(value); //burda ki çıktılar veritabanına kaydedilecek
-
-
-                /*****************************************************************************************/
-                //dizi_al(duration, i, time, project);
-            
-            return value;
+            con.Close();
         }
         /*
       data": [
@@ -169,9 +184,9 @@ namespace wwakalar
     },
              
              */
-        public string parse_json2(string json)
+        public void parse_json2(string json)
         {
-            string value = string.Empty;
+            //string value = string.Empty;
 
             JObject json_object = JObject.Parse(json);
             var json_result = json_object["data"];
@@ -190,83 +205,174 @@ namespace wwakalar
                 string user_agent_id = datas["user_agent_id"].ToString();
                 //  string branch = datas["branch"].ToString();
                 string language = datas["language"].ToString();
-                value = "created_at=" + cretad + "\n"+"proje="+proje+"\n" + "language="+ language+"\n" + "entity=" + entit + "\n" + "id="+ids+"\n"
-                    + "user_agent_id="+ user_agent_id+"\n"+ "time=" + times + "\n" +"type="+ types + "\n"+"Kategori="+katagori+"\n";
+               // value = "created_at=" + cretad + "\n"+"proje="+proje+"\n" + "language="+ language+"\n" + "entity=" + entit + "\n" + "id="+ids+"\n"
+                 //   + "user_agent_id="+ user_agent_id+"\n"+ "time=" + times + "\n" +"type="+ types + "\n"+"Kategori="+katagori+"\n";
 
+               // Console.WriteLine(value); //burda ki çıktılar veritabanına kaydedilecek
 
-                /*****************************************************************************************/
-
-
-
-                Console.WriteLine(value); //burda ki çıktılar veritabanına kaydedilecek
-              
-                
-                /*****************************************************************************************/
-                                          //dizi_al(duration, i, time, project);
+                                        vt_heartbeats(cretad, entit, ids,times,types,katagori,proje,user_agent_id,language);
+                continue;
             }
-            return value;
+            
         }
-        public string parse_json(string json)
+        public void vt_heartbeats(string cretad,string entit,string ids,string times,string types,string kategori,string proje, string user_agent_id,string language)
         {
-            string value = string.Empty;
-
+            string tarih = Tarih_Cagir();
+            con.Open();
+            string secmeSorgusu = "SELECT * from Heartbeats where vt_kayit=@tarih";
+            SqlCommand secmeKomutu = new SqlCommand(secmeSorgusu, con);
+            secmeKomutu.Parameters.AddWithValue("@tarih", tarih);
+            if (secmeKomutu != null)
+            {
+                string silSorgusu = "Delete from Heartbeats where vt_kayit=@tarih and time=@times";
+                SqlCommand kayit_sil = new SqlCommand(silSorgusu, con);
+                kayit_sil.Parameters.AddWithValue("@tarih", tarih);
+                kayit_sil.Parameters.AddWithValue("@times", times);
+                kayit_sil.ExecuteNonQuery();
+            }
+            SqlCommand kayitekle = new SqlCommand("insert into Heartbeats(project,created_at,entity,user_id,types,time,category,user_agent_id,language,vt_kayit) values" +
+                " ( @proje,@cretad,@entit,@ids,@types,@times,@kategori,@user_agent_id,@language,@tarih)", con);
+          
+            kayitekle.Parameters.AddWithValue("@proje", proje);
+            kayitekle.Parameters.AddWithValue("@cretad", cretad);
+            kayitekle.Parameters.AddWithValue("@entit", entit);
+            kayitekle.Parameters.AddWithValue("@ids", ids);
+            kayitekle.Parameters.AddWithValue("@types", types);
+            kayitekle.Parameters.AddWithValue("@times", times);
+            kayitekle.Parameters.AddWithValue("@kategori", kategori);
+            kayitekle.Parameters.AddWithValue("@user_agent_id", user_agent_id);
+            kayitekle.Parameters.AddWithValue("@language", language);
+            kayitekle.Parameters.AddWithValue("@tarih", tarih);
+            kayitekle.ExecuteNonQuery();
+            con.Close();
+        }
+      
+        public void parse_json(string json)
+        {
             JObject json_object = JObject.Parse(json);
             var json_result = json_object["data"];
 
-           
+        //    con.Open();
             foreach (var datas in json_result)
             {
-                int i = 0;
-                   
-                string duration = datas["duration"].ToString();
-              //  Console.WriteLine(duration);
-                durat[i]=duration.ToString();
                
+                string duration = datas["duration"].ToString();
+                double s_duration = Convert.ToInt32(datas["duration"]);
+                
                 string project = datas["project"].ToString();
+                
                 string time = datas["time"].ToString();
+                double s_time = Convert.ToInt32(datas["time"]);
+
                 var end = datas["end"];
                 var start = datas["start"];
                 var timezone = datas["timezone"];
-
-                value = "duration=" + duration + "\n" + "project=" + project + "\n" + "time=" + time + "\n"+timezone+"\n";
-
-
-
-                /*****************************************************************************************/
-
-
-                Console.WriteLine(value);//burdaki veriler  ayrı tabloda tutulacak
-                                      
-                
-                /*****************************************************************************************/
-
-
-
-
-              //  dizi_al(duration,i,time,project);
+                vt_duration(project,s_duration,s_time);
+                continue;
             }
-            return value;
-        }
-        /*public void dizi_al(string duration,int i, string time,string project)
-        {
            
-            durat[i] = duration;
-            tm[i] = time;
-            prject[i] = project;
-           Console.WriteLine(i+") "+durat[i]+" "+tm[i]+" "+prject[i]);
-        }*/
+        }
+        public void vt_duration(string projects,double s_d,double s_t)
+        {
+            con.Open();
+            string tarih = Tarih_Cagir();
+            string secmeSorgusu = "SELECT * from Durations where tarih=@tarih";
+            SqlCommand secmeKomutu = new SqlCommand(secmeSorgusu , con);
+            secmeKomutu.Parameters.AddWithValue("@tarih", tarih);
+            if (secmeKomutu!=null)
+            {
+                string silSorgusu = "Delete from Durations where tarih=@tarih and time=@times";
+                SqlCommand kayit_sil = new SqlCommand(silSorgusu, con);
+                kayit_sil.Parameters.AddWithValue("@tarih", tarih);
+                kayit_sil.Parameters.AddWithValue("@times", s_t);
+                kayit_sil.ExecuteNonQuery();
+            }
+          
+            SqlCommand kayitekle = new SqlCommand("insert into Durations(project,duration,time,tarih) values" +
+              " ('" + projects +"','" + s_d + "','"+s_t+"','"+ tarih + "')", con);
+            kayitekle.ExecuteNonQuery();
+            // value = "duration=" + duration + "\n" + "project=" + project + "\n" + "time=" + time + "\n"+timezone+"\n";
+
+            con.Close();
+        }
         private void button1_Click(object sender, EventArgs e)
         {
+            parse_json(veri_duration);  
+            
+          //  Console.WriteLine("*************************************************************************************");
             parse_json2(veri_heartbeats);
-            Console.WriteLine("*************************************************************************************");
-            parse_json(veri_duration);
-            Console.WriteLine("*************************************************************************************");
-            parse_json3(veri_user);
+          //  Console.WriteLine("*************************************************************************************");
+          parse_json3(veri_user);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
 
+        }
+        public string Tarih_Cagir()
+        {
+            DateTime dt = DateTime.Today;
+            int yil = dt.Year;
+            int ay = dt.Month;
+            int gun = dt.Day;
+            if (gun == 1)
+            {
+                if (ay == 3)
+                {
+                    gun = 28;
+                    ay = 2;
+                }
+                else if (ay == 5 || ay == 7 || ay == 10 || ay == 12)
+                {
+                    gun = 30;
+                    ay = ay - 1;
+                }
+                else
+                {
+                    gun = 31;
+                    if (ay == 1)
+                    {
+                        ay = 12;
+                        yil = yil - 1;
+                    }
+                    else
+                    {
+                        ay = ay - 1;
+                    }
+                }
+            }
+            else
+            {
+                gun = gun - 1;
+
+            }
+
+            string tarih = yil + "-" + ay + "-" + gun;
+            return tarih;
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            con.Open();
+            if (con.State == ConnectionState.Open)
+            {
+                MessageBox.Show("BAĞLANDI");
+                con.Close();
+            }
+            else
+            {
+                MessageBox.Show("YOK");
+                con.Close();
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Form1 formkapa = new Form1();
+            formkapa.Close();
+            Form2 form = new Form2();
+            form.Show();
+            this.Hide();
         }
     }
 }
