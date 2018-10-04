@@ -5,19 +5,22 @@ using System.Net;
 using System.IO;
 using System.Data.SqlClient;
 using System.Data;
+using Microsoft.Win32;
 
 namespace wwakalar
 {
     public partial class Form1 : Form
     {
-        
+
         //https://wakatime.com/api/v1/users/current/durations?date=2018-07-13&api_key=5fff4da8-ee27-43e6-9511-903fd88be248
+
         public Form1()
         {
          
             InitializeComponent();
+
         }
-       //public SqlConnection con;
+        //public SqlConnection con;
         SqlConnection con = new SqlConnection("Server=.; Initial Catalog = WakaTime;Integrated Security=True");
         private string get_data(string url)
         {
@@ -32,11 +35,7 @@ namespace wwakalar
             {
                 Stream receiveStream = response.GetResponseStream();
                 StreamReader readStream = null;
-
-
                 readStream = new StreamReader(receiveStream);
-
-
                 string data = readStream.ReadToEnd();
               //  var cek = JsonConvert.DeserializeObject<Baslik>(data);
               //  listView1.Text = cek.Data.ToString();
@@ -50,61 +49,42 @@ namespace wwakalar
                 return "Deger yok";
         }
 
-        
-
-        string[] durat = new string[100];
-        string[] tm = new string[100];
-        string[] prject = new string[100];
-        string[] arrray_value = new string[100];
+      
         string api_key = "5fff4da8-ee27-43e6-9511-903fd88be248";
         //string api_key = "084fb563-1f53-44d0-9ff2-48f2c51d202c";
 
      //   string tarih = DateTime.Now.ToString();
-        string[] created = new string[100];
-        string[] entity = new string[100];
-        string[] time = new string[100];
-        string[] type = new string[100];
-
         string veri_duration;
         string veri_heartbeats;
         string veri_user;
        
         public void Form1_Load(object sender, EventArgs e)
         {
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
+            key.SetValue("ProgramAdı", "\"" + Application.ExecutablePath + "\"");
+
+            int saat =DateTime.Now.Hour;
+            int bayrak = 1;
             string tarih=Tarih_Cagir();
             /*formdan tarih aralığı alınacak ona göre ay yıl ataması yapılacak. Ama aralık girilmez ise görüntülenecek zaman  bugün veya dün olacak*/
-            veri_duration = get_data("https://wakatime.com/api/v1/users/current/durations?date="+tarih+"&api_key="+api_key);
-            veri_heartbeats = get_data("https://wakatime.com/api/v1/users/current/heartbeats?date=" + tarih+ "&api_key=" + api_key);
-            veri_user = get_data("https://wakatime.com/api/v1/users/current?api_key=" + api_key);
+            if ((saat == 14 || saat == 17)&bayrak==1)
+            {
+                veri_duration = get_data("https://wakatime.com/api/v1/users/current/durations?date=" + tarih + "&api_key=" + api_key);
+                veri_heartbeats = get_data("https://wakatime.com/api/v1/users/current/heartbeats?date=" + tarih + "&api_key=" + api_key);
+                veri_user = get_data("https://wakatime.com/api/v1/users/current?api_key=" + api_key);
+
+                parse_json(veri_duration);
+                parse_json2(veri_heartbeats);
+                parse_json3(veri_user);
+                bayrak = 0;
+            }
+            else
+            {
+                bayrak = 1;
+            }
+          
         }   
-        /*{
-  "data": {
-    "created_at": "2018-06-25T05:48:32Z",+
-    "display_name": "Anonymous User",
-    "email": "ibrahimkaya334298@gmail.com",+
-    "email_public": false,
-    "full_name": null,
-    "has_premium_features": false,
-    "human_readable_website": null,
-    "id": "52cb9b43-fa90-4617-9c55-6e300ffb9c8f",+
-    "is_email_confirmed": true,
-    "is_hireable": false,
-    "languages_used_public": false,
-    "last_heartbeat": "2018-07-25T08:40:07Z",+
-    "last_plugin": "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.0.1594 Safari/537.36 chrome-wakatime/1.0.2",
-    "last_plugin_name": "Chrome",+
-    "last_project": "wwakalar",+
-    "location": null,
-    "logged_time_public": false,
-    "modified_at": null,
-    "photo": "https://wakatime.com/gravatar/52cb9b43-fa90-4617-9c55-6e300ffb9c8f",
-    "photo_public": true,
-    "plan": "basic",
-    "timezone": "Europe/Istanbul",
-    "username": null,
-    "website": null
-  }
-}*/
+
         public void parse_json3(string json)
         {
             //string value = string.Empty;
@@ -160,30 +140,7 @@ namespace wwakalar
 
             con.Close();
         }
-        /*
-      data": [
-    {
-      "branch": null,+++++++++++++++++++
-      "category": "browsing",++++++++++++++++++
-      "created_at": "2018-07-23T01:38:45Z",++++++++++
-      "cursorpos": null,----------------------
-      "dependencies": [],--------------------
-      "entity": "https://www.youtube.com",++++++++++++++++++
-      "id": "3cd73229-b63d-4c63-86aa-be56a1baca34", ++++++++++++
-      "is_debugging": false,------------
-      "is_write": false,----------
-      "language": null,-----------
-      "lineno": null,-----------
-      "lines": null,-------
-      "machine_name_id": null,-------------
-      "project": "wwakalar",        ++++++++++++++
-      "time": 1532309955,   ++++++++++
-      "type": "domain",     +++++++++++++++
-      "user_agent_id": "76973644-4f88-4873-bc31-9fd33f4be7a4",  +++++++
-      "user_id": "52cb9b43-fa90-4617-9c55-6e300ffb9c8f"     +++++
-    },
-             
-             */
+      
         public void parse_json2(string json)
         {
             //string value = string.Empty;
@@ -297,12 +254,7 @@ namespace wwakalar
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            parse_json(veri_duration);  
             
-          //  Console.WriteLine("*************************************************************************************");
-            parse_json2(veri_heartbeats);
-          //  Console.WriteLine("*************************************************************************************");
-          parse_json3(veri_user);
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -373,6 +325,51 @@ namespace wwakalar
             Form2 form = new Form2();
             form.Show();
             this.Hide();
+        }
+
+        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (FormWindowState.Minimized == this.WindowState)
+            {
+                /*   notifyIcon1.Visible = true;
+                   notifyIcon1.ShowBalloonTip(500);
+                   this.Hide();*/
+                Hide();
+                notifyIcon1.Visible = true;
+                notifyIcon1.Text = "NotifyIcon Denemesi";
+                notifyIcon1.BalloonTipTitle = "Program Çalışıyor";
+                notifyIcon1.BalloonTipText = "Program sağ alt köşede konumlandı.";
+                notifyIcon1.BalloonTipIcon = ToolTipIcon.Info;
+
+                notifyIcon1.ShowBalloonTip(30000);
+                notifyIcon1.ShowBalloonTip(100,"Bilgi","Yeni Bir mesajınız var",ToolTipIcon.Info);
+            }
+            else if (FormWindowState.Normal == this.WindowState)
+            {
+                notifyIcon1.Visible = false;
+                this.Show();
+            }
+        }
+
+        private void contextMenuStrip1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+           
+        }
+
+        private void çıkışToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+        
+        private void programıGösterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            Show();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            Hide();
         }
     }
 }
